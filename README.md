@@ -116,20 +116,20 @@ pi@raspberrypi:~$ sudo pip2 install tableprint==0.8.0
 Downloading using git:
 
 ```
-pi@raspberrypi:~$ sudo git clone https://github.com/Airthings/wave.git
+pi@raspberrypi:~$ sudo git clone https://github.com/Airthings/wave-reader.git
 ```
 
 Downloading using wget:
 
 ```
-pi@raspberrypi:~$ wget https://raw.githubusercontent.com/Airthings/wave/master/read_wave.py
+pi@raspberrypi:~$ wget https://raw.githubusercontent.com/Airthings/wave-reader/master/read_wave.py
 ```
 
 # Usage
 
-To read the sensor data from the Airthings Wave Plus using the ```read_wave.py``` script,
+To read the sensor data from the Airthings Wave using the ```read_wave.py``` script,
 you need the 10-digit serial number of the device. This can be found under the magnetic backplate 
-of your Airthings Wave Plus.
+of your Airthings Wave.
 
 If your device is paired and connected to e.g. a phone, you may need to turn off bluetooth on
 your phone while using this script.
