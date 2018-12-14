@@ -67,7 +67,7 @@ The default password for the “pi” user is “raspberry”.
 
 ## Turn on the BLE interface
 
-In the terminal window on you Raspberry Pi:
+In the terminal window on your Raspberry Pi:
 
 ```
 pi@raspberrypi:~$ bluetoothctl
@@ -136,19 +136,33 @@ your phone while using this script.
 
 ```cd``` into the directory where the read_wave.py script is located if you cloned the repo.
 
+The general format for calling the ```read_wave.py``` script is as follows:
+
 ```
-pi@raspberrypi:~$ cd wave
+read_wave.py SN SAMPLE-PERIOD [pipe > yourfilename.txt]
 ```
+
+where the input arguments are:
+
+| input argument | example | Comments |
+|-------------|-------------|-------------|
+| SN            | 0123456789              | 10-digit number. Can be found under the magnetic backplate of your Airthings Wave Plus.
+| SAMPLE-PERIOD | 60                      | Read sensor values every 60 seconds. Must be larger than zero.
+| pipe          | pipe > yourfilename.txt | Optional. Since tableprint is incompatible with piping, we use a third optional input argument "pipe".
+
+> Note choosing a sample period: 
+Temperature and humidity are updated every time we read the wave. Radon measurements are update once every hour.
 
 ## Printing data to the terminal window
 
-Run the Python script ```read_wave.py``` in the following way:
+By default, the ```read_wave.py``` script will print the current sensor values to the Rasberry Pi terminal.
+Run the Python script in the following way:
 
 ```
-pi@raspberrypi:~/wave $ sudo python2 read_wave.py [SN] terminal
+pi@raspberrypi:~/wave-reader $ sudo python2 read_waveplus.py SN SAMPLE-PERIOD
 ```
 
-where you change [SN] with the 10-digit serial number. 
+where you change SN with the 10-digit serial number, and change SAMPLE-PERIOD to a numerical value of your choice.
 
 After a short delay, the script will print the current sensor values to the 
 Raspberry Pi terminal window. Exit the script using “Ctrl + c”.
@@ -158,10 +172,12 @@ Raspberry Pi terminal window. Exit the script using “Ctrl + c”.
 If you want to pipe the results to a text-file, you can run the script in the following way:
 
 ```
-pi@raspberrypi:~/wave $ sudo python2 read_wave.py [SN] pipe > yourfile.txt
+pi@raspberrypi:~/wave-reader $ sudo python2 read_wave.py SN SAMPLE-PERIOD pipe > yourfilename.txt
 ```
 
-where you change [SN] with the 10-digit serial number. Exit the script using “Ctrl + c”.
+where you change SN with the 10-digit serial number, and change SAMPLE-PERIOD to a numerical value of your choice.
+
+Exit the script using “Ctrl + c”.
 
 # Sensor data description
 
@@ -174,5 +190,9 @@ where you change [SN] with the 10-digit serial number. Exit the script using “
 | Radon long term average       | Bq/m3 | First measurement available 1 hour after inserting batteries
 
 # Release notes
+
+Release dated 14-Dec-2018
+
+* Added SAMPLE-PERIOD as an input argument.
 
 Initial release 13-Dec-2018
