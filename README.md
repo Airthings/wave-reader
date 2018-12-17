@@ -27,17 +27,17 @@ The following tables shows a compact overview of dependencies for this project.
 
 | OS | model/version | Comments |
 |-------------|-------------|-------------|
-| Raspberry Pi 3 | Model B | Raspbian image
-| Linux          | x86 Debian | Should work according to [bluepy](https://github.com/IanHarvey/bluepy)
+| Raspbian | Raspberry Pi 3 Model B | Used in this project.
+| Linux    | x86 Debian             | Should work according to [bluepy](https://github.com/IanHarvey/bluepy)
 
 **List of linux/raspberry dependencies**
 
 | package | version | Comments |
 |-------------|-------------|-------------|
-| python  | 2.7 | Tested with python 2.7.13
-| python-pip | | pip for python2.7
-| git        | | To download this project
-| libglib2.0-dev  | | For bluepy module
+| python         | 2.7 | Tested with python 2.7.13
+| python-pip     |     | pip for python2.7
+| git            |     | To download this project
+| libglib2.0-dev |     | For bluepy module
 
 **List of Python dependencies**
 
@@ -76,11 +76,11 @@ pi@raspberrypi:~$ bluetoothctl
 ```
 
 After issuing the command ```show```, a list of bluetooth settings will be printed
-to the Raspberry Pi terminal window. Look for “Powered: yes”.
+to the Raspberry Pi terminal window. Look for ```Powered: yes```.
 
 ## Installing linux and python packages
 
-> Note: The ```read_wave.py``` script is only compatible with Python2.7.
+> **Note:** The ```read_wave.py``` script is only compatible with Python2.7.
 
 The next step is to install the bluepy Python library for talking to the BLE stack. 
 For the current released version for Python 2.7:
@@ -109,7 +109,7 @@ to print nicely formated sensor data to the Raspberry Pi terminal at run-time.
 pi@raspberrypi:~$ sudo pip2 install tableprint==0.8.0
 ```
 
-> Note: The ```read_wave.py``` script has been tested with bluepy==1.2.0 and tableprint==0.8.0. You may download the latest versions at your own risk.
+> **Note:** The ```read_wave.py``` script has been tested with bluepy==1.2.0 and tableprint==0.8.0. You may download the latest versions at your own risk.
 
 ## Downloading script
 
@@ -134,7 +134,7 @@ of your Airthings Wave.
 If your device is paired and connected to e.g. a phone, you may need to turn off bluetooth on
 your phone while using this script.
 
-```cd``` into the directory where the read_wave.py script is located if you cloned the repo.
+```cd``` into the directory where the ```read_wave.py``` script is located if you cloned the repo.
 
 The general format for calling the ```read_wave.py``` script is as follows:
 
@@ -150,8 +150,9 @@ where the input arguments are:
 | SAMPLE-PERIOD | 60                      | Read sensor values every 60 seconds. Must be larger than zero.
 | pipe          | pipe > yourfilename.txt | Optional. Since tableprint is incompatible with piping, we use a third optional input argument "pipe".
 
-> Note choosing a sample period: 
-Temperature and humidity are updated every time we read the wave. Radon measurements are update once every hour.
+> **Note on choosing a sample period:** 
+Temperature and humidity are updated every time we read the wave.
+Radon measurements are updated once every hour.
 
 ## Printing data to the terminal window
 
@@ -162,10 +163,10 @@ Run the Python script in the following way:
 pi@raspberrypi:~/wave-reader $ sudo python2 read_waveplus.py SN SAMPLE-PERIOD
 ```
 
-where you change SN with the 10-digit serial number, and change SAMPLE-PERIOD to a numerical value of your choice.
+where you change ```SN``` with the 10-digit serial number, and change ```SAMPLE-PERIOD``` to a numerical value of your choice.
 
 After a short delay, the script will print the current sensor values to the 
-Raspberry Pi terminal window. Exit the script using “Ctrl + c”.
+Raspberry Pi terminal window. Exit the script using ```Ctrl+C```.
 
 ## Piping data to a text-file
 
@@ -175,9 +176,9 @@ If you want to pipe the results to a text-file, you can run the script in the fo
 pi@raspberrypi:~/wave-reader $ sudo python2 read_wave.py SN SAMPLE-PERIOD pipe > yourfilename.txt
 ```
 
-where you change SN with the 10-digit serial number, and change SAMPLE-PERIOD to a numerical value of your choice.
+where you change ```SN``` with the 10-digit serial number, and change ```SAMPLE-PERIOD``` to a numerical value of your choice.
 
-Exit the script using “Ctrl + c”.
+Exit the script using ```Ctrl+C```.
 
 # Sensor data description
 
@@ -188,6 +189,13 @@ Exit the script using “Ctrl + c”.
 | Temperature                   | &deg;C | 
 | Radon short term average      | Bq/m3 | First measurement available 1 hour after inserting batteries
 | Radon long term average       | Bq/m3 | First measurement available 1 hour after inserting batteries
+
+# Contribution
+
+Let us know how it went! If you want contribute, you can do so by posting issues or suggest enhancement
+[here](https://github.com/Airthings/wave-reader/issues), or you can open a pull request for review
+[here](https://github.com/Airthings/wave-reader/pulls).
+
 
 # Release notes
 
