@@ -17,6 +17,7 @@ Additionally, you can simply wave in front of the device to get a visual indicat
   * [Printing data to the terminal window](#printing-data-to-the-terminal-window)
   * [Piping data to a text-file](#piping-data-to-a-text-file)
 * [Sensor data description](#sensor-data-description)
+* [Contribution](#contribution)
 * [Release notes](#release-notes)  
 
 # Requirements
