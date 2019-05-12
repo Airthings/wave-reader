@@ -254,6 +254,9 @@ try:
         elif (Mode=='pipe'):
             #print pipedata
 	    print ''.join(map(str, pipedata))
+	    # Lets do only one iteration and break the loop and exit
+	    waveplus.disconnect()
+	    break
         
         waveplus.disconnect()
         
