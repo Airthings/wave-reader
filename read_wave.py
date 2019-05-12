@@ -206,15 +206,17 @@ try:
     
     if (Mode=='terminal'):
         print "\nPress ctrl+C to exit program\n"
+        print "Device serial number: %s" %(SerialNumber)
     
-    print "Device serial number: %s" %(SerialNumber)
-    
-    header = ['Humidity', 'Radon ST avg', 'Radon LT avg', 'Temperature', 'Pressure', 'CO2 level', 'VOC level']
+    #header = ['Humidity', 'Radon ST avg', 'Radon LT avg', 'Temperature', 'Pressure', 'CO2 level', 'VOC level']
+    header = ['Humidity', 'Temperature', 'Radon ST avg', 'Radon LT avg', 'Pressure']
     
     if (Mode=='terminal'):
         print tableprint.header(header, width=12)
     elif (Mode=='pipe'):
-        print header
+	# enable if you want to print header in pipe mode
+        #print header
+	donothing = 0
         
     while True:
         
@@ -223,22 +225,35 @@ try:
         # read values
         sensors = waveplus.read()
         
-        # extract
-        humidity     = str(sensors.getValue(SENSOR_IDX_HUMIDITY))             + " " + str(sensors.getUnit(SENSOR_IDX_HUMIDITY))
-        radon_st_avg = str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG)) + " " + str(sensors.getUnit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
-        radon_lt_avg = str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))  + " " + str(sensors.getUnit(SENSOR_IDX_RADON_LONG_TERM_AVG))
-        temperature  = str(sensors.getValue(SENSOR_IDX_TEMPERATURE))          + " " + str(sensors.getUnit(SENSOR_IDX_TEMPERATURE))
-        pressure     = str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))     + " " + str(sensors.getUnit(SENSOR_IDX_REL_ATM_PRESSURE))
-        CO2_lvl      = str(sensors.getValue(SENSOR_IDX_CO2_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_CO2_LVL))
-        VOC_lvl      = str(sensors.getValue(SENSOR_IDX_VOC_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_VOC_LVL))
-        
+	if (Mode=='terminal'):
+            # extract
+            humidity     = str(sensors.getValue(SENSOR_IDX_HUMIDITY))             + " " + str(sensors.getUnit(SENSOR_IDX_HUMIDITY))
+            radon_st_avg = str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG)) + " " + str(sensors.getUnit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
+            radon_lt_avg = str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))  + " " + str(sensors.getUnit(SENSOR_IDX_RADON_LONG_TERM_AVG))
+            temperature  = str(sensors.getValue(SENSOR_IDX_TEMPERATURE))          + " " + str(sensors.getUnit(SENSOR_IDX_TEMPERATURE))
+            pressure     = str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))     + " " + str(sensors.getUnit(SENSOR_IDX_REL_ATM_PRESSURE))
+            CO2_lvl      = str(sensors.getValue(SENSOR_IDX_CO2_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_CO2_LVL))
+            VOC_lvl      = str(sensors.getValue(SENSOR_IDX_VOC_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_VOC_LVL))
+	elif (Mode=='pipe'):
+            # extract values without unit for pipe printing, to further process into InfluxDB
+            humidity     = str(sensors.getValue(SENSOR_IDX_HUMIDITY))             + " "
+            radon_st_avg = str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG)) + " "
+            radon_lt_avg = str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))  + " "
+            temperature  = str(sensors.getValue(SENSOR_IDX_TEMPERATURE))          + " "
+            pressure     = str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))     + " "
+            CO2_lvl      = str(sensors.getValue(SENSOR_IDX_CO2_LVL))              + " "
+            VOC_lvl      = str(sensors.getValue(SENSOR_IDX_VOC_LVL))              + " "
+
         # Print data
-        data = [humidity, radon_st_avg, radon_lt_avg, temperature, pressure, CO2_lvl, VOC_lvl]
+        #data = [humidity, radon_st_avg, radon_lt_avg, temperature, pressure, CO2_lvl, VOC_lvl]
+        data = [humidity, temperature, radon_st_avg, radon_lt_avg, pressure]
+        pipedata = [time.strftime("%Y-%m-%d %H:%M:%S "), humidity, temperature, radon_st_avg, radon_lt_avg, pressure]
         
         if (Mode=='terminal'):
             print tableprint.row(data, width=12)
         elif (Mode=='pipe'):
-            print data
+            #print pipedata
+	    print ''.join(map(str, pipedata))
         
         waveplus.disconnect()
         
