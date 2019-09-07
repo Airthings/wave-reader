@@ -107,7 +107,7 @@ SENSOR_IDX_RADON_ST_AVG  = 3
 SENSOR_IDX_RADON_LT_AVG  = 4
 
 # ===============================
-# Class WavePlus
+# Class Wave
 # ===============================
 
 class Wave():
@@ -125,6 +125,7 @@ class Wave():
         self.temperature_char  = None
         self.radon_st_avg_char = None
         self.radon_lt_avg_char = None
+        self.serial_number     = SerialNumber
 
     def connect(self):
         scanner     = Scanner().withDelegate(DefaultDelegate())
@@ -136,11 +137,11 @@ class Wave():
             for dev in devices:
                 ManuData = dev.getValueText(255)
                 SN = parseSerialNumber(ManuData)
-                if (SN == SerialNumber):
+                if (SN == self.serial_number):
                     MacAddr = dev.addr
                     deviceFound  = True # exits the while loop on next conditional check
                     break # exit for loop
-        
+
         if (deviceFound is not True):
             print "ERROR: Could not find device."
             print "GUIDE: (1) Please verify the serial number. (2) Ensure that the device is advertising. (3) Retry connection."
@@ -152,7 +153,7 @@ class Wave():
             self.temperature_char  = self.periph.getCharacteristics(uuid=self.UUID_TEMPERATURE)[0]
             self.radon_st_avg_char = self.periph.getCharacteristics(uuid=self.UUID_RADON_ST_AVG)[0]
             self.radon_lt_avg_char = self.periph.getCharacteristics(uuid=self.UUID_RADON_LT_AVG)[0]
-            
+
     def read(self, sensor_idx):
         if (sensor_idx==SENSOR_IDX_DATETIME and self.datetime_char!=None):
                 rawdata = self.datetime_char.read()
@@ -180,7 +181,7 @@ class Wave():
             print "GUIDE: (1) method connect() must be called first, (2) Ensure correct sensor_idx input value."
             sys.exit(1)
         return str(data)+unit
-    
+
     def disconnect(self):
         if self.periph is not None:
             self.periph.disconnect()
@@ -195,37 +196,37 @@ try:
     #---- Connect to device ----#
     wave = Wave(SerialNumber)
     wave.connect()
-    
+
     if (Mode=='terminal'):
         print "\nPress ctrl-C to exit program\n"
-    
+
     print "Device serial number: %s" %(SerialNumber)
-    
+
     header = ['Datetime', 'Humidity', 'Temperature', 'Radon ST avg', 'Radon LT avg']
-    
+
     if (Mode=='terminal'):
         print tableprint.header(header, width=20)
     elif (Mode=='pipe'):
         print header
 
     while True:
-        
+
         # read current values
         date_time    = wave.read(SENSOR_IDX_DATETIME)
         humidity     = wave.read(SENSOR_IDX_HUMIDITY)
         temperature  = wave.read(SENSOR_IDX_TEMPERATURE)
         radon_st_avg = wave.read(SENSOR_IDX_RADON_ST_AVG)
         radon_lt_avg = wave.read(SENSOR_IDX_RADON_LT_AVG)
-        
+
         data = [date_time, humidity, temperature, radon_st_avg, radon_lt_avg]
-        
+
         # Print data
         if (Mode=='terminal'):
             print tableprint.row(data, width=20)
         elif (Mode=='pipe'):
             print data
-            
+
         time.sleep(SamplePeriod)
-            
+
 finally:
     wave.disconnect()
