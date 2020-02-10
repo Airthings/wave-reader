@@ -24,30 +24,21 @@
 
 import bluepy.btle as btle
 import argparse
-import datetime
 import signal
 import struct
 import sys
 import time
 
 
-class Wave():
+class Wave2():
 
-    DATETIME_UUID = btle.UUID(0x2A08)
-    HUMIDITY_UUID = btle.UUID(0x2A6F)
-    TEMPERATURE_UUID = btle.UUID(0x2A6E)
-    RADON_STA_UUID = btle.UUID("b42e01aa-ade7-11e4-89d3-123b93f75cba")
-    RADON_LTA_UUID = btle.UUID("b42e0a4c-ade7-11e4-89d3-123b93f75cba")
+    CURR_VAL_UUID = btle.UUID("b42e4dcc-ade7-11e4-89d3-123b93f75cba")
 
     def __init__(self, serial_number):
         self._periph = None
-        self._datetime_char = None
-        self._humidity_char = None
-        self._temperature_char = None
-        self._radon_sta_char = None
-        self._radon_lta_char = None
-        self.serial_number = serial_number
+        self._char = None
         self.mac_addr = None
+        self.serial_number = serial_number
 
     def is_connected(self):
         try:
@@ -74,11 +65,7 @@ class Wave():
                 self.mac_addr = self.discover()
             try:
                 self._periph = btle.Peripheral(self.mac_addr)
-                self._datetime_char = self._periph.getCharacteristics(uuid=self.DATETIME_UUID)[0]
-                self._humidity_char = self._periph.getCharacteristics(uuid=self.HUMIDITY_UUID)[0]
-                self._temperature_char = self._periph.getCharacteristics(uuid=self.TEMPERATURE_UUID)[0]
-                self._radon_sta_char = self._periph.getCharacteristics(uuid=self.RADON_STA_UUID)[0]
-                self._radon_lta_char = self._periph.getCharacteristics(uuid=self.RADON_LTA_UUID)[0]
+                self._char = self._periph.getCharacteristics(uuid=self.CURR_VAL_UUID)[0]
             except Exception:
                 if tries == retries:
                     raise
@@ -86,42 +73,33 @@ class Wave():
                     pass
 
     def read(self):
-        rawdata = self._datetime_char.read()
-        rawdata += self._humidity_char.read()
-        rawdata += self._temperature_char.read()
-        rawdata += self._radon_sta_char.read()
-        rawdata += self._radon_lta_char.read()
+        rawdata = self._char.read()
         return CurrentValues.from_bytes(rawdata)
 
     def disconnect(self):
         if self._periph is not None:
             self._periph.disconnect()
             self._periph = None
-            self._datetime_char = None
-            self._humidity_char = None
-            self._temperature_char = None
-            self._radon_sta_char = None
-            self._radon_lta_char = None
+            self._char = None
 
 
 class CurrentValues():
 
-    def __init__(self, timestamp, humidity, temperature, radon_sta, radon_lta):
-        self.timestamp = timestamp
+    def __init__(self, humidity, radon_sta, radon_lta, temperature):
         self.humidity = humidity
+        self.radon_sta = radon_sta
+        self.radon_lta = radon_lta
         self.temperature = temperature
-        self.radon_sta = radon_sta  # Short term average
-        self.radon_lta = radon_lta  # Long term average
 
     @classmethod
     def from_bytes(cls, rawdata):
-        data = struct.unpack('<H5B4H', rawdata)
-        timestamp = datetime.datetime(data[0], data[1], data[2], data[3], data[4], data[5])
-        return cls(timestamp, data[6]/100.0, data[7]/100.0, data[8], data[9])
+        data = struct.unpack("<4B8H", rawdata)
+        if data[0] != 1:
+            raise ValueError("Incompatible current values version (Expected 1, got {})".format(data[0]))
+        return cls(data[1]/2.0, data[4], data[5], data[6]/100.0)
 
     def __str__(self):
-        msg = "Timestamp: {}, ".format(self.timestamp)
-        msg += "Humidity: {} %rH, ".format(self.humidity)
+        msg = "Humidity: {} %rH, ".format(self.humidity)
         msg += "Temperature: {} *C, ".format(self.temperature)
         msg += "Radon STA: {} Bq/m3, ".format(self.radon_sta)
         msg += "Radon LTA: {} Bq/m3".format(self.radon_lta)
@@ -139,7 +117,7 @@ def _parse_serial_number(manufacturer_data):
 
 
 def _argparser():
-    parser = argparse.ArgumentParser(prog="read_wave", description="Script for reading current values from a 1st Gen Wave product")
+    parser = argparse.ArgumentParser(prog="read_wave2", description="Script for reading current values from a 2nd Gen Wave product")
     parser.add_argument("SERIAL_NUMBER", type=int, help="Airthings device serial number found under the magnetic backplate.")
     parser.add_argument("SAMPLE_PERIOD", type=int, default=60, help="Time in seconds between reading the current values")
     args = parser.parse_args()
@@ -148,19 +126,19 @@ def _argparser():
 
 def _main():
     args = _argparser()
-    wave = Wave(args.SERIAL_NUMBER)
+    wave2 = Wave2(args.SERIAL_NUMBER)
 
     def _signal_handler(sig, frame):
-        wave.disconnect()
+        wave2.disconnect()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, _signal_handler)
 
     while True:
-        wave.connect(retries=3)
-        current_values = wave.read()
+        wave2.connect(retries=3)
+        current_values = wave2.read()
         print(current_values)
-        wave.disconnect()
+        wave2.disconnect()
         time.sleep(args.SAMPLE_PERIOD)
 
 
